@@ -60,7 +60,6 @@ void ThLCD (void *argument) {
  
   while (1) {
     // Insert thread code here...
-    LCD_Update ();
     //osThreadYield();                            // suspend thread
   }
 }
@@ -116,7 +115,7 @@ void delay (uint32_t n_microsegundos){
   
 }
 
-void LCD_reset (void){
+void LCD_Reset (void){
   
   /* Initialize the SPI driver */
   SPIdrv->Initialize(NULL);    // Inicializamos el SPI al callback
@@ -170,7 +169,7 @@ void LCD_wr_cmd (unsigned char cmd){
   HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_SET);   //CS = 1
 }
 
-void LCD_init (void){  // Configuracion del LCD (no escribo nada)
+void LCD_Init (void){  // Configuracion del LCD (no escribo nada)
   LCD_wr_cmd(0xAE);   // Power off
   LCD_wr_cmd(0xA2);   // Fija el valor de la relacion de la tension de polarizacion del LCD a 1/9
   LCD_wr_cmd(0xA0);   // El direccionamiento de la RAM de datos del display es la normal
@@ -285,7 +284,7 @@ void writeLCD (uint8_t line, char frase[256])
   }
 }
 
-void LCD_update(void){ // Sirve para mandar los datos a escribir al LCD
+void LCD_Update(void){ // Sirve para mandar los datos a escribir al LCD
   int i;
   LCD_wr_cmd(0x00); // 4 bits de la parte baja de la dirección a 0
   LCD_wr_cmd(0x10); // 4 bits de la parte alta de la dirección a 0
@@ -346,6 +345,5 @@ void cleanBuffer (uint8_t line)
 void LCD_Clean(void)
 {
   memset(buffer, 0 , 512u); //implica añadir la libreria: #include "string.h"
-  LCD_update();
+  LCD_Update();
 }
-
