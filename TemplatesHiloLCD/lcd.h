@@ -7,6 +7,7 @@
 #include "string.h"                             // Libreria que contiene la funcion strlen
 #include "stdio.h"                                // Libreria que contiene la funcion sprintf
 #include "Driver_SPI.h"
+#include <stdbool.h>
 
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
