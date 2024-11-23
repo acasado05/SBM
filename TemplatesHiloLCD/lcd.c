@@ -223,31 +223,6 @@ void LCD_symbolToLocalBuffer_L2 (uint8_t symbol){ //Paginas 3 y 4
   
 }
 
-void moverBarraBaja(uint8_t symbol, uint8_t position)
-{ 
-  uint8_t i, value1, value2;
-  uint16_t offset = 0;
-  uint8_t positionL3 = position;
-  
-  offset = 25*(symbol - ' ');	// numero de la fila a la que quiero acceder
-  
-  for (i = 0; i < 12; i++){
-    
-    value1 = Arial12x12[offset+i*2+1];
-    value2 = Arial12x12[offset+i*2+2];
-    
-    buffer[i + 384 + positionL3] = value1;
-    buffer[i + 128 + positionL3] = value2;
-    
-  }
-  
-  if (positionL1 < 128){
-    positionL3 = positionL3 + Arial12x12[offset];
-  }else{
-    positionL3 = 0;
-  }
-}
-
 void symbolToLocalBuffer (uint8_t line,uint8_t symbol)
 {
   if (line == 1)
