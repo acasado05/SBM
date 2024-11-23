@@ -14,10 +14,7 @@ osThreadId_t tid_ThLCD;                        // thread id
 osThreadId_t tid_ThLCD;                       // Identificador del hilo
 TIM_HandleTypeDef htim7;
 
-osTimerId_t tim_id;
-static uint32_t exec; 
-
-//Cabeceras funciones
+//Cabeceras funciones SPI
 void ThLcd (void *argument);                  // Funcion del hilo
 void SPI_Callback (uint32_t event);
 void initPines (void);
@@ -40,7 +37,8 @@ void cleanLine (void);
 static unsigned char buffer[512];
 static unsigned char positionL1 = 0;
 static unsigned char positionL2 = 0;
- 
+
+//Prototipo del Thread 
 void ThLCD (void *argument);                   // thread function
  
 int Init_Thread (void) {
@@ -66,6 +64,10 @@ void ThLCD (void *argument) {
     //osThreadYield();                            // suspend thread
   }
 }
+
+/*----------------------------------------------------------------------------
+ *                            FUNCIONES DEL SPI
+ *---------------------------------------------------------------------------*/
 
 void initPines(void){
   
@@ -371,3 +373,4 @@ void LCD_Clean(void)
   memset(buffer, 0 , 512u); //implica añadir la libreria: #include "string.h"
   LCD_update();
 }
+
