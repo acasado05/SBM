@@ -6,8 +6,4 @@
 
 int Init_Hora (void);
 
-extern uint8_t segundos;
-extern uint8_t minutos;
-extern uint8_t horas;
-
 #endif /* __CLOCK_H */
