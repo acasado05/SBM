@@ -126,7 +126,7 @@ int main(void)
   /* Create thread functions that start executing, 
   Example: osThreadNew(app_main, NULL, NULL); */
 	
-	Init_ThClock();
+	Init_Hora ();
 	
   /* Start thread execution */
   osKernelStart();
