@@ -7,7 +7,7 @@
 osThreadId_t tid_joystick;                        // thread id
 
 osMessageQueueId_t mid_MsgQueue_joystick;           // Identificador de la cola
-MSGQUEUE_OBJ_JOY_t txMsg;
+MSGQUEUE_JOY_t txMsg;
 
 
 /* Variables Timer */
@@ -51,7 +51,7 @@ int Init_Joystick(void) {
   }
   
   /* Inicialización Cola */
-  mid_MsgQueue_joystick = osMessageQueueNew(MSGQUEUE_OBJECTS_JOY, sizeof(MSGQUEUE_OBJ_JOY_t), NULL);
+  mid_MsgQueue_joystick = osMessageQueueNew(MSGQUEUE_OBJECTS_JOY, sizeof(MSGQUEUE_JOY_t), NULL);
   
   Init_Pines ();
  
