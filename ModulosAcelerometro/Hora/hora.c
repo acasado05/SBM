@@ -16,9 +16,9 @@ osThreadId_t tid_hora;                        // identificador del hilo encargad
  
 void ThClock (void *argument);                   // funcion principal del hilo encargado  de gestionar la hora
 
-extern uint8_t segundos;
-extern uint8_t minutos;
-extern uint8_t horas;
+extern uint8_t ss;
+extern uint8_t mm;
+extern uint8_t hh;
 
 void Segundero_Callback(void const *arg);
  
@@ -52,20 +52,20 @@ void ThClock (void *argument) {
 
 void Segundero_Callback(void const *arg){ // Callback del timer que se va a ejecutar cada segundo
   
-  segundos++;
+  ss++;
   
-  if(segundos == 60){
-    segundos = 0;
-    minutos++;
+  if(ss == 60){
+    ss = 0;
+    mm++;
   }
   
-  if(minutos == 60){
-    minutos = 0;
-    horas++;
+  if(mm == 60){
+    mm = 0;
+    hh++;
   }
   
-  if(horas == 24){
-    horas = 0;
+  if(hh == 24){
+    hh = 0;
   }
 }
 
