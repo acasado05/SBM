@@ -84,9 +84,9 @@ uint32_t HAL_GetTick (void) {
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 
-uint8_t segundos = 0;
-uint8_t minutos = 0;
-uint8_t horas = 0;
+uint8_t ss = 0;
+uint8_t mm = 0;
+uint8_t hh = 0;
 
 /* Private function prototypes -----------------------------------------------*/
 static void SystemClock_Config(void);
