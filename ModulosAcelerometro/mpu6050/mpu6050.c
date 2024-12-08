@@ -16,11 +16,9 @@ int8_t status_I2C;
 void Thread_MPU6050 (void *argument);                   // thread function
 int8_t Init_I2C (void);
 void Callback_I2C (uint32_t event);
-void Timer_Callback_1s (void);
 void PWR_ON_MPU6050 (void);
 static float RD_ACCEL_MPU (uint8_t reg_address);
 static float RD_TEMP_MPU (uint8_t reg_address);
-void read_MPU6050 (void);
 
 bool comienzoLectura = true;
 
@@ -49,20 +47,16 @@ void Thread_MPU6050 (void *argument) {
   while (1) {
     // Insert thread code here...
     
-    if(comienzoLectura){
-      //read_MPU6050 ();
-      txMsg.ejeX = RD_ACCEL_MPU(ACCEL_XOUT_H);
-      txMsg.ejeY = RD_ACCEL_MPU(ACCEL_YOUT_H);
-      txMsg.ejeZ = RD_ACCEL_MPU(ACCEL_ZOUT_H);
-      txMsg.temp = RD_TEMP_MPU(TEMP_OUT_H);
+    //read_MPU6050 ();
+    txMsg.ejeX = RD_ACCEL_MPU(ACCEL_XOUT_H);
+    txMsg.ejeY = RD_ACCEL_MPU(ACCEL_YOUT_H);
+    txMsg.ejeZ = RD_ACCEL_MPU(ACCEL_ZOUT_H);
+    txMsg.temp = RD_TEMP_MPU(TEMP_OUT_H);
+    
+    osMessageQueuePut(mid_MsgQueue_MPU, &txMsg, 0U, 0U);
+    
+    osDelay(1000); //Lectura cada segundo
       
-      osMessageQueuePut(mid_MsgQueue_MPU, &txMsg, 0U, 0U);
-      
-      osDelay(1000); //Lectura cada segundo
-      
-    }else{
-      osThreadYield ();
-    }
   }
 }
 
@@ -151,11 +145,7 @@ static float RD_TEMP_MPU (uint8_t reg_address){
   return totalTemp;
 }
 
-void initRead (void){
-  comienzoLectura = true;
-}
 
-void stopRead (void){
-  comienzoLectura = false;
-}
+
+
 
