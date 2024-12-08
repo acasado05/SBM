@@ -11,7 +11,6 @@
 #include <math.h>
 
 /* Exported types ------------------------------------------------------------*/
-
 extern osMessageQueueId_t mid_MsgQueueLCD;
 
 typedef struct{
@@ -24,6 +23,7 @@ typedef struct{
   uint8_t state;
   uint8_t lowBar;
 }MSGQUEUE_LCD_t;
+
 /* Exported constants --------------------------------------------------------*/
 #define S_TRANS_DONE_SPI  0x01
 #define M_REPOSO          0x04

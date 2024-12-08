@@ -37,7 +37,7 @@ void cleanBuffer (uint8_t line);
 void cleanLine (void);
 static void modosPrincipal (void);
 
-//Variables del mÃ³dulo
+//Variables del módulo
 static unsigned char buffer[512];
 static unsigned char positionL1 = 0;
 static unsigned char positionL2 = 0;
@@ -172,7 +172,7 @@ void LCD_Reset (void){
   
 }
 
-//FunciÃ³n que escribe un dato en el LCD
+//Función que escribe un dato en el LCD
 void LCD_wr_data (unsigned char data){
   
   HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_RESET); //CS = 0
@@ -187,7 +187,7 @@ void LCD_wr_data (unsigned char data){
   HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_SET);   //CS = 1
 }
 
-//FunciÃ³n que recibe un comando en el LCD
+//Función que recibe un comando en el LCD
 void LCD_wr_cmd (unsigned char cmd){
   
   HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_RESET); //CS = 0
@@ -268,21 +268,21 @@ void symbolToLocalBuffer (uint8_t line,uint8_t symbol)
   int sprintf(char *str, const char *format)
   
   str: puntero a una matriz de elementos char conde se almacena la cadena C resultante
-  format: cadena que contien el texto que se escribirÃ¡ en el buffer
+  format: cadena que contien el texto que se escribirá en el buffer
 Esta ultima, puede contener etiquetas de formato
 
 ETIQUETAS:
 
-- %c: Utilizada para formatear un carÃ¡cter.
+- %c: Utilizada para formatear un carácter.
 - %s: Utilizada para formatear una cadena de caracteres (string).
-- %d o %i: Utilizada para formatear un nÃºmero entero con signo.
-- %u: Utilizada para formatear un nÃºmero entero sin signo.
-- %x o %X: Utilizada para formatear un nÃºmero entero en hexadecimal.
-- %o: Utilizada para formatear un nÃºmero entero en octal.
-- %f: Utilizada para formatear un nÃºmero en punto flotante (decimal).
-- %e o %E: Utilizada para formatear un nÃºmero en notaciÃ³n cientÃ­fica.
+- %d o %i: Utilizada para formatear un número entero con signo.
+- %u: Utilizada para formatear un número entero sin signo.
+- %x o %X: Utilizada para formatear un número entero en hexadecimal.
+- %o: Utilizada para formatear un número entero en octal.
+- %f: Utilizada para formatear un número en punto flotante (decimal).
+- %e o %E: Utilizada para formatear un número en notación científica.
 - %p: Utilizada para formatear un puntero.
-- %%: Utilizada para imprimir el carÃ¡cter '%' literalmente.
+- %%: Utilizada para imprimir el carácter '%' literalmente.
 
 */
 void writeLine_LCD (char *miArray, uint8_t line){
@@ -298,7 +298,7 @@ void writeLine_LCD (char *miArray, uint8_t line){
 }
 
 /**
-  * @brief  FunciÃ³n que escribe en el LCD llamando a la funciÃ³n symbolToLocalBuffer
+  * @brief  Función que escribe en el LCD llamando a la función symbolToLocalBuffer
     @param  Linea sobre la que se va a escribir 
   */
 void writeLCD (uint8_t line, char frase[256])
@@ -319,17 +319,17 @@ void writeLCD (uint8_t line, char frase[256])
 
 void LCD_Update(void){ // Sirve para mandar los datos a escribir al LCD
   int i;
-  LCD_wr_cmd(0x00); // 4 bits de la parte baja de la direcciÃ³n a 0
-  LCD_wr_cmd(0x10); // 4 bits de la parte alta de la direcciÃ³n a 0
-  LCD_wr_cmd(0xB0); // PÃ¡gina 0
+  LCD_wr_cmd(0x00); // 4 bits de la parte baja de la dirección a 0
+  LCD_wr_cmd(0x10); // 4 bits de la parte alta de la dirección a 0
+  LCD_wr_cmd(0xB0); // Página 0
 
   for(i=0;i<128;i++){
     LCD_wr_data(buffer[i]);
   }
 
-  LCD_wr_cmd(0x00); // 4 bits de la parte baja de la direcciÃ³n a 0
-  LCD_wr_cmd(0x10); // 4 bits de la parte alta de la direcciÃ³n a 0
-  LCD_wr_cmd(0xB1); // PÃ¡gina 1
+  LCD_wr_cmd(0x00); // 4 bits de la parte baja de la dirección a 0
+  LCD_wr_cmd(0x10); // 4 bits de la parte alta de la dirección a 0
+  LCD_wr_cmd(0xB1); // Página 1
 
   for(i=128;i<256;i++){
    LCD_wr_data(buffer[i]);
@@ -337,7 +337,7 @@ void LCD_Update(void){ // Sirve para mandar los datos a escribir al LCD
 
   LCD_wr_cmd(0x00);
   LCD_wr_cmd(0x10);
-  LCD_wr_cmd(0xB2); //PÃ¡gina 2
+  LCD_wr_cmd(0xB2); //Página 2
   for(i=256;i<384;i++){
    LCD_wr_data(buffer[i]);
   }
@@ -377,7 +377,7 @@ void cleanBuffer (uint8_t line)
 
 void LCD_Clean(void)
 {
-  memset(buffer, 0 , 512u); //implica aÃ±adir la libreria: #include "string.h"
+  memset(buffer, 0 , 512u); //implica añadir la libreria: #include "string.h"
   LCD_Update();
 }
 
