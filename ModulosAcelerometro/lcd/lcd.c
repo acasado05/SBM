@@ -71,7 +71,7 @@ void ThLCD (void *argument) {
     // Insert thread code here...
     osMessageQueueGet (mid_MsgQueueLCD, &rxMsg, NULL, osWaitForever);
     cleanBuffer (rxMsg.line);
-    modosPrincipal ();
+    writeLCD (rxMsg.line, rxMsg.info);
     LCD_Update ();
     cleanLine ();
     osThreadYield();                            // suspend thread
@@ -379,23 +379,4 @@ void LCD_Clean(void)
 {
   memset(buffer, 0 , 512u); //implica añadir la libreria: #include "string.h"
   LCD_Update();
-}
-
-static void modosPrincipal (void)
-{
-  switch(rxMsg.state)
-  {
-    case M_REPOSO:
-      writeLCD (rxMsg.line, rxMsg.info);
-      break;
-    
-    case M_MANUAL:
-      writeLCD (rxMsg.line, rxMsg.info);
-      break;
-    
-    case M_PROG_DEP:
-      writeLCD (rxMsg.line, rxMsg.info);
-      //moverBarraBaja ('_', rxMsg.lowBar);
-      break;
-  }
 }
