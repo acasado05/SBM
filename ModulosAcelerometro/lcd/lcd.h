@@ -16,12 +16,6 @@ extern osMessageQueueId_t mid_MsgQueueLCD;
 typedef struct{
   uint8_t line;
   char info[256];
-  float Ax;
-  float Ay;
-  float Az;
-  float temp;
-  uint8_t state;
-  uint8_t lowBar;
 }MSGQUEUE_LCD_t;
 
 /* Exported constants --------------------------------------------------------*/
