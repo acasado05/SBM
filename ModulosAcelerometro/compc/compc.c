@@ -19,6 +19,7 @@ static ARM_DRIVER_USART * USARTdrv = &Driver_USART3;
 void myUART_Thread_rx(void* args);                   // thread function
 void myUART_Thread_tx(void* args);                   // thread function
 void myUSART_Callback(uint32_t event);
+void processingFrame (uint32_t flagRecepcion);
 
 EstadosCom_t estadoCom = InitState;
 uint32_t statusFlag = 0;
@@ -87,29 +88,8 @@ void myUART_Thread_rx(void* args)
     USARTdrv->Receive(&byte, 1);          /* Get byte from UART */
     statusFlag = osThreadFlagsWait(ARM_USART_EVENT_RECEIVE_COMPLETE, osFlagsWaitAny, osWaitForever);
     
-    if(statusFlag == ARM_USART_EVENT_RECEIVE_COMPLETE){
-      if(estadoCom == InitState){
-        if(byte == SOH){
-          i = 0;
-          estadoCom = DefaultState;
-          frame[i] = byte;
-          i++;
-        }
-      }else{
-        if(byte != EOT){
-          frame[i] = byte;
-          i++;
-        }else{
-          estadoCom = InitState;
-          frame[i] = byte; //Poner BP aqui 
-          
-          if(frame[2] == strlen(frame)){
-            osMessageQueuePut(id_MsgQueue_RX, &frame, 0U , 0U);
-            memset(frame, 0x00, 50);
-          }
-        }
-      }
-    }
+    processingFrame(statusFlag);
+    
   }
 }
 
@@ -131,14 +111,6 @@ void myUSART_Callback(uint32_t event)
     /* Success: Wakeup Thread */
     osThreadFlagsSet(tid_compc_tx, ARM_USART_EVENT_SEND_COMPLETE);
   }
- 
-  if (event & ARM_USART_EVENT_RX_TIMEOUT) {
-    //__breakpoint(0);  /* Error: Call debugger or replace with custom error handling */
-  }
- 
-  if (event & (ARM_USART_EVENT_RX_OVERFLOW | ARM_USART_EVENT_TX_UNDERFLOW)) {
-    //__breakpoint(0);  /* Error: Call debugger or replace with custom error handling */
-  }
 }
 
 osMessageQueueId_t idQueueRX (void){
@@ -148,3 +120,31 @@ osMessageQueueId_t idQueueRX (void){
 osMessageQueueId_t idQueueTX (void){
   return id_MsgQueue_TX;
 }
+
+void processingFrame (uint32_t flagRecepcion){
+  
+  if(flagRecepcion == ARM_USART_EVENT_RECEIVE_COMPLETE){
+    if(estadoCom == InitState){
+      if(byte == SOH){
+        i = 0;
+        estadoCom = DefaultState;
+        frame[i] = byte;
+        i++;
+      }
+    }else{
+      if(byte != EOT){
+        frame[i] = byte;
+        i++;
+      }else{
+        estadoCom = InitState;
+        frame[i] = byte; //Poner BP aqui 
+        
+        if(frame[2] == strlen(frame)){
+          osMessageQueuePut(id_MsgQueue_RX, &frame, 0U , 0U);
+          memset(frame, 0x00, 50);
+        }
+      }
+    }
+  }
+}
+  
