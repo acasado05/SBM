@@ -28,8 +28,9 @@ void LCD_wr_cmd (unsigned char cmd);
 void LCD_Init (void);
 void LCD_symbolToLocalBuffer_L1 (uint8_t symbol);
 void LCD_symbolToLocalBuffer_L2 (uint8_t symbol);
+void LCD_symbolToLocalBuffer_L3 (uint8_t symbol); //Pinta la barra baja
 void symbolToLocalBuffer (uint8_t line,uint8_t symbol);
-void writeLine_LCD (char *miArray, uint8_t line);
+void writeBarra_LCD (char *miArray, uint8_t line, uint8_t barra);
 void writeLCD (uint8_t line, char frase[256]);
 void LCD_Clean(void);
 void LCD_Update (void);
@@ -37,10 +38,11 @@ void cleanBuffer (uint8_t line);
 void cleanLine (void);
 static void modosPrincipal (void);
 
-//Variables del módulo
+//Variables del m?dulo
 static unsigned char buffer[512];
 static unsigned char positionL1 = 0;
 static unsigned char positionL2 = 0;
+static unsigned char positionL3 = 0;
 
 //Prototipo del Thread 
 void ThLCD (void *argument);                   // thread function
@@ -72,6 +74,10 @@ void ThLCD (void *argument) {
     osMessageQueueGet (mid_MsgQueueLCD, &rxMsg, NULL, osWaitForever);
     cleanBuffer (rxMsg.line);
     writeLCD (rxMsg.line, rxMsg.info);
+    if(rxMsg.lowBar != 0){
+      positionL3 = rxMsg.lowBar;
+      LCD_symbolToLocalBuffer_L3('_');
+    }
     LCD_Update ();
     cleanLine ();
     osThreadYield();                            // suspend thread
@@ -172,7 +178,7 @@ void LCD_Reset (void){
   
 }
 
-//Función que escribe un dato en el LCD
+//Funci?n que escribe un dato en el LCD
 void LCD_wr_data (unsigned char data){
   
   HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_RESET); //CS = 0
@@ -187,7 +193,7 @@ void LCD_wr_data (unsigned char data){
   HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_SET);   //CS = 1
 }
 
-//Función que recibe un comando en el LCD
+//Funci?n que recibe un comando en el LCD
 void LCD_wr_cmd (unsigned char cmd){
   
   HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_RESET); //CS = 0
@@ -255,6 +261,25 @@ void LCD_symbolToLocalBuffer_L2 (uint8_t symbol){ //Paginas 3 y 4
   
 }
 
+void LCD_symbolToLocalBuffer_L3 (uint8_t symbol){ // paginas 4 y 2
+  
+  uint8_t i, value1, value2;
+  uint16_t offset = 0;
+  
+  offset = 25*(symbol - ' '); // numero de la fila a la que quiero acceder
+  
+  for (i = 0; i < 5; i++){
+    
+    //value1 = Arial12x12[offset+i*2+1];
+    value2 = Arial12x12[offset+i*2+2];
+    
+    //buffer[i + 256 + positionL3] = value1;
+    buffer[i + 384 + positionL3] = buffer[i + 384 + positionL3] | 0x08;
+  }
+  
+  positionL3 = positionL3 + Arial12x12[offset];
+}
+
 void symbolToLocalBuffer (uint8_t line,uint8_t symbol)
 {
   if (line == 1)
@@ -268,37 +293,38 @@ void symbolToLocalBuffer (uint8_t line,uint8_t symbol)
   int sprintf(char *str, const char *format)
   
   str: puntero a una matriz de elementos char conde se almacena la cadena C resultante
-  format: cadena que contien el texto que se escribirá en el buffer
+  format: cadena que contien el texto que se escribir? en el buffer
 Esta ultima, puede contener etiquetas de formato
 
 ETIQUETAS:
 
-- %c: Utilizada para formatear un carácter.
+- %c: Utilizada para formatear un car?cter.
 - %s: Utilizada para formatear una cadena de caracteres (string).
-- %d o %i: Utilizada para formatear un número entero con signo.
-- %u: Utilizada para formatear un número entero sin signo.
-- %x o %X: Utilizada para formatear un número entero en hexadecimal.
-- %o: Utilizada para formatear un número entero en octal.
-- %f: Utilizada para formatear un número en punto flotante (decimal).
-- %e o %E: Utilizada para formatear un número en notación científica.
+- %d o %i: Utilizada para formatear un n?mero entero con signo.
+- %u: Utilizada para formatear un n?mero entero sin signo.
+- %x o %X: Utilizada para formatear un n?mero entero en hexadecimal.
+- %o: Utilizada para formatear un n?mero entero en octal.
+- %f: Utilizada para formatear un n?mero en punto flotante (decimal).
+- %e o %E: Utilizada para formatear un n?mero en notaci?n cient?fica.
 - %p: Utilizada para formatear un puntero.
-- %%: Utilizada para imprimir el carácter '%' literalmente.
+- %%: Utilizada para imprimir el car?cter '%' literalmente.
 
 */
-void writeLine_LCD (char *miArray, uint8_t line){
+void writeBarra_LCD (char *miArray, uint8_t line, uint8_t barra){
   
   int i;
+  bool sel = false;
   
   // Usamos la funcion symbolToLocalBuffer
   for(i = 0; i < strlen(miArray); i++){
-    symbolToLocalBuffer(line, miArray[i]);
+    symbolToLocalBuffer(line,miArray[i]);
   }
   i = 0;
   
 }
 
 /**
-  * @brief  Función que escribe en el LCD llamando a la función symbolToLocalBuffer
+  * @brief  Funci?n que escribe en el LCD llamando a la funci?n symbolToLocalBuffer
     @param  Linea sobre la que se va a escribir 
   */
 void writeLCD (uint8_t line, char frase[256])
@@ -319,17 +345,17 @@ void writeLCD (uint8_t line, char frase[256])
 
 void LCD_Update(void){ // Sirve para mandar los datos a escribir al LCD
   int i;
-  LCD_wr_cmd(0x00); // 4 bits de la parte baja de la dirección a 0
-  LCD_wr_cmd(0x10); // 4 bits de la parte alta de la dirección a 0
-  LCD_wr_cmd(0xB0); // Página 0
+  LCD_wr_cmd(0x00); // 4 bits de la parte baja de la direcci?n a 0
+  LCD_wr_cmd(0x10); // 4 bits de la parte alta de la direcci?n a 0
+  LCD_wr_cmd(0xB0); // P?gina 0
 
   for(i=0;i<128;i++){
     LCD_wr_data(buffer[i]);
   }
 
-  LCD_wr_cmd(0x00); // 4 bits de la parte baja de la dirección a 0
-  LCD_wr_cmd(0x10); // 4 bits de la parte alta de la dirección a 0
-  LCD_wr_cmd(0xB1); // Página 1
+  LCD_wr_cmd(0x00); // 4 bits de la parte baja de la direcci?n a 0
+  LCD_wr_cmd(0x10); // 4 bits de la parte alta de la direcci?n a 0
+  LCD_wr_cmd(0xB1); // P?gina 1
 
   for(i=128;i<256;i++){
    LCD_wr_data(buffer[i]);
@@ -337,7 +363,7 @@ void LCD_Update(void){ // Sirve para mandar los datos a escribir al LCD
 
   LCD_wr_cmd(0x00);
   LCD_wr_cmd(0x10);
-  LCD_wr_cmd(0xB2); //Página 2
+  LCD_wr_cmd(0xB2); //P?gina 2
   for(i=256;i<384;i++){
    LCD_wr_data(buffer[i]);
   }
@@ -377,6 +403,10 @@ void cleanBuffer (uint8_t line)
 
 void LCD_Clean(void)
 {
-  memset(buffer, 0 , 512u); //implica añadir la libreria: #include "string.h"
+  memset(buffer, 0 , 512u); //implica a?adir la libreria: #include "string.h"
   LCD_Update();
+}
+
+osMessageQueueId_t idQueueLCD (void){
+  return mid_MsgQueueLCD;
 }
