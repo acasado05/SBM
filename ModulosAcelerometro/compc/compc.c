@@ -55,12 +55,11 @@ void myUART_Thread_tx(void* args){
   
   while(1){
     osMessageQueueGet(id_MsgQueue_TX, &txMessage, NULL, osWaitForever);
-//    osMessageQueueGet(id_MsgQueue_RX, &txMessage, NULL, osWaitForever); //Pongo esta para comprobar si funciona
     
     //Se envia al ordenador
     USARTdrv->Send(&txMessage, sizeof(txMessage));          /* Get byte from UART */
     osThreadFlagsWait(ARM_USART_EVENT_SEND_COMPLETE, osFlagsWaitAny, osWaitForever);
-    //memset(txMessage, 0x00, 50);
+    memset(txMessage, 0x00, 50);
   }
 }
  
@@ -84,7 +83,7 @@ void myUART_Thread_rx(void* args)
    
   while (1)
   {
-    //Esto está recibiendo constantemente
+    //Esto estÃ¡ recibiendo constantemente
     USARTdrv->Receive(&byte, 1);          /* Get byte from UART */
     statusFlag = osThreadFlagsWait(ARM_USART_EVENT_RECEIVE_COMPLETE, osFlagsWaitAny, osWaitForever);
     
@@ -113,14 +112,6 @@ void myUSART_Callback(uint32_t event)
   }
 }
 
-osMessageQueueId_t idQueueRX (void){
-  return id_MsgQueue_RX;
-}
-
-osMessageQueueId_t idQueueTX (void){
-  return id_MsgQueue_TX;
-}
-
 void processingFrame (uint32_t flagRecepcion){
   
   if(flagRecepcion == ARM_USART_EVENT_RECEIVE_COMPLETE){
@@ -145,6 +136,16 @@ void processingFrame (uint32_t flagRecepcion){
         }
       }
     }
+  }else{
+    osThreadYield();
   }
+}
+
+osMessageQueueId_t idQueueRX (void){
+  return id_MsgQueue_RX;
+}
+
+osMessageQueueId_t idQueueTX (void){
+  return id_MsgQueue_TX;
 }
   
