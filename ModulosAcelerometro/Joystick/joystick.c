@@ -7,12 +7,12 @@
 osThreadId_t tid_joystick;                        // thread id
 
 osMessageQueueId_t mid_MsgQueue_joystick;           // Identificador de la cola
-MSGQUEUE_JOY_t txMsg;
+MSGQUEUE_JOY_t txMsgJoy;
 
 
 /* Variables Timer */
-osTimerId_t id_tim_20ms;
-osStatus_t status_20ms;
+osTimerId_t id_tim_20ms_r;
+osStatus_t status_20ms_r;
 
 osTimerId_t id_tim_50ms;
 osStatus_t status_50ms;
@@ -23,7 +23,7 @@ uint8_t bounce = 0;
 GPIO_InitTypeDef GPIO_InitStruct;
  
 void ThJoystick (void *argument);                   // thread function
-void Timer_Callback_20ms (void const *arg);
+void Timer_Callback_20ms_r (void const *arg);
 void Timer_Callback_50ms (void const *arg);
 void Init_Pines (void);
  
@@ -35,9 +35,9 @@ int Init_Joystick(void) {
   }
   
   /* Timer REBOTES */
-  id_tim_20ms = osTimerNew((osTimerFunc_t)&Timer_Callback_20ms, osTimerOnce, NULL, NULL); //Timer REBOTES
-  if(id_tim_20ms != NULL){
-    if(status_20ms != osOK){
+  id_tim_20ms_r = osTimerNew((osTimerFunc_t)&Timer_Callback_20ms_r, osTimerOnce, NULL, NULL); //Timer REBOTES
+  if(id_tim_20ms_r != NULL){
+    if(status_20ms_r != osOK){
     return -1;
     }
   }
@@ -63,35 +63,39 @@ void ThJoystick (void *argument) {
   while (1) {
     // Insert thread code here...
     osThreadFlagsWait(PULSACION, osFlagsWaitAny, osWaitForever); //Espero a cualquiera de ellos: 0011 1111 (Tengo esos 5)
-    osTimerStart(id_tim_20ms, 20U);
+    osTimerStart(id_tim_20ms_r, 50U); //Aunque ponga 20ms, son 50 ms
     //osThreadYield();                            // suspend thread
   }
 }
 
-void Timer_Callback_20ms (void const *arg){
+void Timer_Callback_20ms_r (void const *arg){
+  
+  txMsgJoy.direccion = 0;
   
   if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_10) == GPIO_PIN_SET){ //ARRIBA
     bounce += 1;
-    txMsg.direccion = J_UP;
+    txMsgJoy.direccion = J_UP;
   }
   else if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_11) == GPIO_PIN_SET){ //DERECHA
     bounce += 1;
-    txMsg.direccion = J_RGHT;
+    txMsgJoy.direccion = J_RGHT;
   }
   else if(HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_12) == GPIO_PIN_SET){ //ABAJO
     bounce += 1;
-    txMsg.direccion = J_DOWN;
+    txMsgJoy.direccion = J_DOWN;
   }
   else if(HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_14) == GPIO_PIN_SET){ //IZQUIERDA
     bounce += 1;
-    txMsg.direccion = J_LEFT;
+    txMsgJoy.direccion = J_LEFT;
   }
   else if(HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_15) == GPIO_PIN_SET){ //CENTRO
     bounce += 1;
     osTimerStart(id_tim_50ms, 50U);
   }
   
-  osMessageQueuePut(mid_MsgQueue_joystick, &txMsg, 0U, 0U);
+  if(txMsgJoy.direccion != J_CNT_LNG && txMsgJoy.direccion != J_CNT_SHRT && txMsgJoy.direccion != 0){
+    osMessageQueuePut(mid_MsgQueue_joystick, &txMsgJoy, 0U, 0U);
+  }
 }
 
 //Lo considero pulsación larga si: 1/50 ms = 20 veces o mayor!
@@ -103,16 +107,16 @@ void Timer_Callback_50ms (void const *arg){
     
     if(centro >= 20){
       osTimerStop(id_tim_50ms);
-      txMsg.direccion = J_CNT_LNG;
-      osMessageQueuePut(mid_MsgQueue_joystick, &txMsg, 0U, 0U);
+      txMsgJoy.direccion = J_CNT_LNG;
+      osMessageQueuePut(mid_MsgQueue_joystick, &txMsgJoy, 0U, 0U);
       centro = 0;
     }
   }
   
   if(HAL_GPIO_ReadPin (GPIOE, GPIO_PIN_15) == GPIO_PIN_RESET){
     osTimerStop(id_tim_50ms);
-    txMsg.direccion = J_CNT_SHRT;
-    osMessageQueuePut(mid_MsgQueue_joystick, &txMsg, 0U, 0U);
+    txMsgJoy.direccion = J_CNT_SHRT;
+    osMessageQueuePut(mid_MsgQueue_joystick, &txMsgJoy, 0U, 0U);
     centro = 0;
   }
   
@@ -139,4 +143,8 @@ void Init_Pines (void){
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
   
   HAL_NVIC_EnableIRQ(EXTI15_10_IRQn); //Llamada a la interrupci?n del joystick
+}
+
+osMessageQueueId_t idQueueJoystick (void){
+  return mid_MsgQueue_joystick;
 }
