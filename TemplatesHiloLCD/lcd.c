@@ -47,7 +47,8 @@ int Init_Thread (void) {
   if (tid_ThLCD == NULL) {
     return(-1);
   }
-  
+
+  initPines ();
   LCD_Reset ();
   LCD_Init ();
   LCD_Clean ();
